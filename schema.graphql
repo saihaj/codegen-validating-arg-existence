@@ -1,0 +1,177 @@
+"""
+Integers that will have a value of 0 or more.
+"""
+scalar NonNegativeInt
+
+"""
+Base node
+"""
+interface Node {
+  """
+  Node identifier
+  """
+  id: ID!
+}
+
+"""
+Container of Node and the Cursor from the Node
+"""
+interface Edge {
+  """
+  Cursor to be used for pagination
+  """
+  cursor: String!
+  """
+  Node entity
+  """
+  node: Node!
+}
+
+
+"""
+Base connection for paginated results
+"""
+interface Connection {
+  """
+  Edges of current page
+  """
+  edges: [Edge]!
+  """
+  Pagination helpers information
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+Pagination helper information
+"""
+type PageInfo {
+  """
+  Cursor shorthand of the last node from current page
+  """
+  endCursor: String
+  """
+  Does the current connection have a next page
+  """
+  hasNextPage: Boolean!
+  """
+  Does the current connection have a previous page
+  """
+  hasPreviousPage: Boolean!
+  """
+  Cursor shorthand of the first node from current page
+  """
+  startCursor: String
+}
+
+"""
+Pagination paramaters for release chart ranks
+"""
+input ReleaseChartRankCursorConnectionArgs {
+  """
+  Start forwards pagination since "after" cursor
+  """
+  after: String
+  """
+  Start backwards pagination since "before" cursor
+  """
+  before: String
+  """
+  Limit the amount of nodes to be fetched, to be used with "after", with a maximum of 51 nodes.
+  """
+  first: NonNegativeInt
+  """
+  Limit the amount of nodes to be fetched, to be used with "before", with a maximum of 51 nodes.
+  """
+  last: NonNegativeInt
+}
+
+"""
+Release chart rank entity
+"""
+type ReleaseChartRank implements Node {
+  """
+  Current ranking of release
+  """
+  currentRank: Int!
+  """
+  UUID of Release chart entity
+  """
+  id: ID!
+  """
+  Last ranking of release
+  """
+  rankLast: Int
+  """
+  Peak ranking of release
+  """
+  rankPeak: Int
+  """
+  Trending streak of release
+  """
+  trendingStreak: Int!
+}
+
+"""
+Edge of Release Chart Rank Connection
+"""
+type ReleaseChartRankConnectionEdge implements Edge {
+  """
+  Cursor to be used for pagination
+  """
+  cursor: String!
+  """
+  Release Chart Rank node
+  """
+  node: ReleaseChartRank!
+}
+
+"""
+Paginated connection of Release Chart Ranks
+"""
+type ReleaseChartRankConnection implements Connection {
+  """
+  Edges of current page
+  """
+  edges: [ReleaseChartRankConnectionEdge!]!
+  """
+  Pagination helpers information
+  """
+  pageInfo: PageInfo!
+}
+
+
+"""
+Release chart entity
+"""
+type ReleaseChart implements Node {
+  """
+  Chart ranks of release chart
+  """
+  chartRanks(
+    """
+    Pagination parameters
+    """
+    pagination: ReleaseChartRankCursorConnectionArgs! = {
+      after: null
+      first: 10
+      sort: { currentRank: ASC }
+    }
+  ): ReleaseChartRankConnection!
+  """
+  UUID of Release chart entity
+  """
+  id: ID!
+}
+
+type Query {
+  """
+  Fetch a Release Chart by its UUID
+  """
+  releaseChart(
+    """
+    UUID of Release Chart
+    """
+    id: ID!
+  ): ReleaseChart
+}
